@@ -69,7 +69,7 @@ t_i = 2 --Index for Tempo Envelopes, start at 2
 --Load Core
 local info = debug.getinfo(1,'S')
 scriptPath = info.source:match[[^@?(.*[\\/])[^\\/]-$]]
-local BTR = require(scriptPath.."AV5_BTR_Core")
+local BTR = require(scriptPath.."AV5_BTR_Lib")
 
 -- FUNCTIONS --
 

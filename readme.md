@@ -9,7 +9,7 @@ all of your clients your key pressing skills while producing bangers.
 ### Demo Videos
 V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 
-#### Use the scripts EasyInstallNoLib for easier installation.
+#### Use the scripts on EasyInstallNoLib for easier installation.
 
 ### Installation: 
 1. Place all BTR scripts in the same directory.

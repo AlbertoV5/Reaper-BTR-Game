@@ -65,6 +65,7 @@ local function NewTracks()
 			reaper.SetTrackSelected(trackList[i], false) --DESELECT
 		end
 	end
+	reaper.SetExtState("playtoggle", "togglevalue", "1", true)
 end
 
 local function GetZoom()
@@ -79,6 +80,7 @@ if CopyFile() == true then
 	GetZoom()
 	reaper.SetMasterTrackVisibility(0)
 	reaper.SetEditCurPos(0, true, true) -- Cursor 0
-end
 
+	reaper.Main_OnCommand(41817,1)
+end
 

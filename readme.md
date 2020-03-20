@@ -1,7 +1,6 @@
 ## Beat the Reaper Game V0.5
 
 Small rhythm game for your Reaper Projects. Reaper: https://www.reaper.fm/
-Download Reaper: https://www.reaper.fm/download.php
 
 ### Description: 
 Press keys to the beat of your song, achieve the highest score to show 

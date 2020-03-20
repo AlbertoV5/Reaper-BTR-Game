@@ -1,5 +1,5 @@
 --User Variables
-SONG_DURATION_BEATS = 12 --INPUT THE DURATION OF YOUR SONG IN BEATS
+SONG_DURATION_BEATS = 273 --INPUT THE DURATION OF YOUR SONG IN BEATS
 --Booleans
 useProjectTempo = true -- set false to input custom tempo below
 randomMap = true -- don't tweak, reading .csv not implemented yet

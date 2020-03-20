@@ -10,10 +10,10 @@ all of your clients your key pressing skills while producing bangers.
 ### Installation: 
 1. Place all 3 BTR scripts in the same directory.
 2. Open Reaper Actions -> Show Action List -> Reascript -> Load...
-3. Add AV5_BTR_Setup and AV5_BTR_Start to your Actions. 
+3. Add AV5_BTR_Setup and AV5_BTR_Game to your Actions. 
 You can add hotkeys or put them in a toolbar.
 4. Select the music track you want to play with and Run AV5_BTR_Setup.
-5. After the session is created, run AV5_BTR_Start.
+5. After the session is created, run AV5_BTR_Game.
 6. Have fun :)
 
 ### How to Play:

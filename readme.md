@@ -8,6 +8,7 @@ Press keys to the beat of your song, achieve the highest score to show
 all of your clients your key pressing skills while producing bangers.
 
 Download Reaper: https://www.reaper.fm/
+#### Use EasyInstallNoLib for easier installation.
 
 ### Installation: 
 1. Place all BTR scripts in the same directory.

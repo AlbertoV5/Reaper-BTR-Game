@@ -1,14 +1,12 @@
 ## Beat the Reaper Game
 
 Small rhythm game for your Reaper Projects.
-
-V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
+Download Reaper: https://www.reaper.fm/
 
 ### Description: 
 Press keys to the beat of your song, achieve the highest score to show 
 all of your clients your key pressing skills while producing bangers.
 
-Download Reaper: https://www.reaper.fm/
 #### Use EasyInstallNoLib for easier installation.
 
 ### Installation: 
@@ -24,6 +22,8 @@ Download Reaper: https://www.reaper.fm/
 2. Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.
 3. If you do it on beat, you'll get a point, if you miss you will lose a point.
 
+### Demo Videos
+V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 
 ### To Do:
 -Add Create a Track with a Midi item of length of your score when closing the game.

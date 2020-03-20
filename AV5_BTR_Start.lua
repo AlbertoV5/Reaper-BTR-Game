@@ -18,7 +18,7 @@ missHitColor = 33554431.0
 --Advanced
 enableDebug = false
 --[[
-Script: Beat the Reaper - Small rhythm game for your Reaper Projects
+Script: Beat the Reaper - 
 
 Description: 
 Press keys to the beat of your song, achieve the highest score to show 
@@ -32,7 +32,9 @@ How to Play:
 1.The project will play and items will appear on your edit window.
 2.Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.
 3.If you do it on beat, you'll get a point, if you miss you will lose a point.
-4.You can see your score at the end of the song. 40702 <-new track bottom of tcp
+
+To Do:
+-Add Create a Track with a Midi item of length of your score when closing the game.
 
 Script by Alberto Valdez at av5sound.com and u/Sound4Sound
 --]]

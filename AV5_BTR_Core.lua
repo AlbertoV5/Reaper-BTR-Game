@@ -31,6 +31,7 @@ end
 
 function BTR_CORE.CleanUpItems(trackRange)
 --CLEAN UP ITEMS ON TRACKS 1 to 4
+	reaper.Main_OnCommand(40289, 1) --Unselect First
 	for i = trackRange[1], trackRange[2] do
 		selectedTrack = reaper.GetTrack(0, i)
 		for i = 1, reaper.CountTrackMediaItems(selectedTrack) do

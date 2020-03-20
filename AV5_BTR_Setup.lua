@@ -3,6 +3,7 @@ randomTrackColor = false
 --
 numberOfTracks = 4 --Set randomTrackColor to true if using 4+ tracks
 colorList = {19005439.0,33227519.0,25231112.0,33227392.0}
+trackHeight = 200
 --[[
 Script: Beat the Reaper Setup
 Description: 
@@ -54,7 +55,7 @@ local function NewTracks()
 			reaper.GetSetMediaTrackInfo_String(
 			trackList[i], "P_NAME", tostring(i-1), true)
 			reaper.SetMediaTrackInfo_Value(
-				trackList[i], "I_HEIGHTOVERRIDE",200) --Change height to 200
+				trackList[i], "I_HEIGHTOVERRIDE",trackHeight) --Change height to 200
 			if randomTrackColor == false then 
 				reaper.SetMediaTrackInfo_Value(trackList[i], "I_CUSTOMCOLOR", colorList[i-1]) end
 		end

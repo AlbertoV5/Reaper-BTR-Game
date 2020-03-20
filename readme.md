@@ -1,4 +1,4 @@
-## Beat the Reaper Game
+## Beat the Reaper Game V0.5
 
 Small rhythm game for your Reaper Projects. Download Reaper: https://www.reaper.fm/
 

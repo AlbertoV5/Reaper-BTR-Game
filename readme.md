@@ -1,7 +1,8 @@
 ## Beat the Reaper Game
 
 Small rhythm game for your Reaper Projects.
-https://www.youtube.com/watch?v=b7JHRZnzJrc
+
+V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 
 ### Description: 
 Press keys to the beat of your song, achieve the highest score to show 

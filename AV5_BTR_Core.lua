@@ -2,14 +2,6 @@ local BTR_CORE = {};
 
 --Don't mind me, I'm just functions
 
-function BTR_CORE.SetGameVariables(hb_pre,_hb_pos,notes,b,boff)
-	beat = b
-	beatOffset = boff*b
-	hitbox_pre = hb_pre*b
-	hitbox_pos = hb_pos*b
-	midiScale = notes
-end
-
 function BTR_CORE.RandomMap(numOfBeats)
 	local mapList = {} 
 	for i = 1, numOfBeats do

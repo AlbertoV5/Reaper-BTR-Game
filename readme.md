@@ -17,11 +17,9 @@ You can add hotkeys or put them in a toolbar.
 6. Have fun :)
 
 ### How to Play:
-1.The project will play and items will appear on your edit window.
-
-2.Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.
-
-3.If you do it on beat, you'll get a point, if you miss you will lose a point.
+1. The project will play and items will appear on your edit window.
+2. Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.
+3. If you do it on beat, you'll get a point, if you miss you will lose a point.
 
 
 ### To Do:

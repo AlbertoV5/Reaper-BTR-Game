@@ -4,7 +4,7 @@ Small rhythm game for your Reaper Projects
 
 ### Description: 
 Press keys to the beat of your song, achieve the highest score to show 
-all of your clients your key pressing skills while producing hot tapes.
+all of your clients your key pressing skills while producing bangers.
 
 ### Installation: 
 1. Place all 3 BTR scripts in the same directory.

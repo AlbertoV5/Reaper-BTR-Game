@@ -30,4 +30,4 @@ V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 3. Add "get song length in beats" for automatic level load.
 4. Improve UI. Controls on screen.
 
-Script by Alberto Valdez at av5sound.com and u/Sound4Sound
+#### Script by Alberto Valdez at av5sound.com and u/Sound4Sound

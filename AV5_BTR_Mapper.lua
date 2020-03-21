@@ -10,6 +10,16 @@ max_holding_time = 1
 beatBuffer = BEAT*countDown
 beatCounter = 1
 
+--[[
+Script: Beat the Reaper - Mapping Editor
+
+Description: 
+
+V0.1
+
+Script by Alberto Valdez at av5sound.com and u/Sound4Sound
+--]]
+
 
 local function CreateItem(track_id,itemDuration)
 	local track = reaper.GetTrack(0, track_id)

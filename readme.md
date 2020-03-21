@@ -25,9 +25,9 @@ V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 3. If you do it on beat, you'll get a point, if you miss you will lose a point.
 
 ### To Do:
--Add Mapping Editor functionality.
--Add load beatMap from file functionality.
--Add "get song length in beats" for automatic level load.
--Improve UI.
+1. Add Mapping Editor functionality.
+2. Add load beatMap from file functionality.
+3. Add "get song length in beats" for automatic level load.
+4. Improve UI. Controls on screen.
 
 Script by Alberto Valdez at av5sound.com and u/Sound4Sound

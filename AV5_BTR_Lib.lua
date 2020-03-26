@@ -1,7 +1,5 @@
 local BTR_CORE = {};
 
---Don't mind me, I'm just functions
-
 function BTR_CORE.RandomMap(numOfBeats)
 	local mapList = {} 
 	for i = 1, numOfBeats do
@@ -9,6 +7,22 @@ function BTR_CORE.RandomMap(numOfBeats)
 			mapList[i] = math.random(1,4) --Place an item in track id (1 to 4)
 		else
 			mapList[i] = 0 -- No item at 0
+		end
+	end
+	return mapList
+end
+
+function BTR_CORE.RandomMap2(numOfItems,r1,r2)
+	local mapList = {}
+	local add = 0
+	for i = 1, numOfItems do
+		check = math.random(r1,r2)
+		if check == 1 then
+			beatPos = i
+			trackNum = math.random(1,4)
+			beatLen = 1
+			combo = {beatPos,trackNum,beatLen}
+			table.insert(mapList,combo)
 		end
 	end
 	return mapList
@@ -76,5 +90,62 @@ end
 function BTR_CORE.EndGame(playerScore,maxScore)
 	CreateScoreTrack(playerScore,maxScore)
 end
+
+function BTR_CORE.GetSongLength(extraBeats)
+	lastItem = reaper.GetMediaItem(0, reaper.CountTrackMediaItems(reaper.GetTrack(0, 0))-1) 
+	itemPos = reaper.GetMediaItemInfo_Value(lastItem, "D_POSITION")
+	itemLength = reaper.GetMediaItemInfo_Value(lastItem, "D_LENGTH")
+	itemEnd = itemPos + itemLength
+	retval, measures, cml, fullbeats, cdenom = reaper.TimeMap2_timeToBeats(0, itemEnd)
+	return fullbeats
+end
+
+
+function BTR_CORE.DeleteItem(trackID) -- track id
+	local playHead = reaper.GetPlayPosition() 
+	if #valid_items[trackID] > 0 then --THERE IS AN ITEM IN THE TRACK
+		local d_item = valid_items[trackID][1] --CLOSEST ITEM TO PLAYHEAD
+		local d_track = reaper.GetTrack(0, trackID)
+		local d_pos = reaper.GetMediaItemInfo_Value(d_item, "D_POSITION")
+		--COMPARE
+		i_start = d_pos - hitbox_beat_pre
+		i_end = d_pos + hitbox_beat_pos
+		
+		if playHead > i_start and i_end > playHead then -- if playHead between 1 beat before and 1 beat after item start
+			--sc("Hit one"..tostring(d_item))
+			reaper.DeleteTrackMediaItem(d_track, d_item) --sometimes this bugs out
+			p_score = p_score + 1
+			table.remove(valid_items[trackID],1) -- ITEM DELETED (first in list) REMOVE ITEM AS (TRACK,#)
+			reaper.UpdateArrange()
+		else --THERE IS AN ITEM AND YOU MISSED
+			p_score = p_score - 1 
+			reaper.SetMediaItemInfo_Value(d_item,"I_CUSTOMCOLOR", missHitColor) --No longer destructable
+			reaper.UpdateArrange()
+			table.remove(valid_items[trackID],1) -- ITEM MISSED (first in list) REMOVE ITEM AS (TRACK,#)
+		end
+	else -- YOU PRESSED THE KEY AND THERE WAS NO ITEM in the item list D:
+			p_score = p_score - 1 
+			--table.remove(valid_items[trackID],1)
+	end
+end
+
+
+function BTR_CORE.NewItem(trackNum,pos_current,offset,pos_len) 
+	if #valid_items[trackNum] > 0 then 
+		d_item_pos = reaper.GetMediaItemInfo_Value(valid_items[trackNum][1], "D_POSITION")
+		d_item_len = reaper.GetMediaItemInfo_Value(valid_items[trackNum][1], "D_LENGTH")
+		if elapsed > d_item_pos+d_item_len then
+			table.remove(valid_items[trackNum],1) -- ITEM PASSED (first in list) REMOVE ITEM AS (TRACK,#)
+		end
+	end	
+	local track = reaper.GetTrack(0, trackNum)
+	reaper.CreateNewMIDIItemInProj(track,pos_current+offset,pos_len) --Track, START, END
+	local newest_item = reaper.GetTrackMediaItem(track, reaper.CountTrackMediaItems(track)-1)
+	if drawMidiShapes == true then BTR.DrawMidiShape(trackNum,newest_item) end
+
+	table.insert(valid_items[trackNum],newest_item) -- Adds the recently created item to the list of specific track
+	--sc("NEW ITEM at track: "..tostring(trackNum)..", item: "..tostring(newest_item))
+end
+
 
 return BTR_CORE;

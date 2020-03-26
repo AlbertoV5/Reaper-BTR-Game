@@ -1,4 +1,4 @@
-# Beat the Reaper Game V0.5
+# Beat the Reaper Game V0.7
 
 Small rhythm game for your Reaper Projects. Download Reaper: https://www.reaper.fm/download.php
 
@@ -24,10 +24,16 @@ V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 2. Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.
 3. If you do it on beat, you'll get a point, if you miss you will lose a point.
 
+### Changelog:
+Version 0.7
+- Added Beat Mapper functionality
+- Added Load custom map functionality
+- Changed Update function to reduce load
+- Added automatic song length calculation
+
 ### To Do:
-1. Add Mapping Editor functionality.
-2. Add load beatMap from file functionality.
-3. Add "get song length in beats" for automatic level load.
-4. Improve UI. Controls on screen.
+1. Improve UI. Controls on screen.
+2. Improve check for valid items algorithm.
+3. Add shorter and longer notes.
 
 #### Script by Alberto Valdez at av5sound.com and u/Sound4Sound

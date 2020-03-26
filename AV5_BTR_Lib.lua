@@ -61,7 +61,7 @@ function BTR_CORE.Start() --Starts the Game
 	gfx.init(name, x, y, 0, w, h) --INITIALIZE WINDOW
 	reaper.SetEditCurPos(0.0, true, true)
 	reaper.Main_OnCommand(1007, 1, 0)--Play
-	return reaper.time_precise()
+	return reaper.GetPlayPosition()
 end
 
 local function InsertNote(midinote,itemTake) 
@@ -74,7 +74,7 @@ function BTR_CORE.DrawMidiShape(trackNum,newItem)
 end
 
 local function CreateScoreTrack(playerScore,maxScore)
-	local trackHeight = 100
+	local trackHeight = 50
 	local trackName = "Score: "..tostring(math.ceil(1000*playerScore/maxScore)/10).."%, "
 	..tostring(playerScore).." out of "..tostring(maxScore)
 	reaper.Main_OnCommand(40702, 1) --Create track at bottom
@@ -88,7 +88,15 @@ local function CreateScoreTrack(playerScore,maxScore)
 end
 
 function BTR_CORE.EndGame(playerScore,maxScore)
+	reaper.Main_OnCommand(1016, 1, 0)
 	CreateScoreTrack(playerScore,maxScore)
+end
+
+function BTR_CORE.GetSongStart()
+	local first_item = reaper.GetTrackMediaItem(reaper.GetTrack(0, 0), 0)
+	local item_pos = reaper.GetMediaItemInfo_Value(first_item, "D_POSITION")
+	_1, _2, _3, beatPos, _4 = reaper.TimeMap2_timeToBeats(0, item_pos)
+	return beatPos
 end
 
 function BTR_CORE.GetSongLength(extraBeats)
@@ -103,48 +111,39 @@ end
 
 function BTR_CORE.DeleteItem(trackID) -- track id
 	local playHead = reaper.GetPlayPosition() 
-	if #valid_items[trackID] > 0 then --THERE IS AN ITEM IN THE TRACK
-		local d_item = valid_items[trackID][1] --CLOSEST ITEM TO PLAYHEAD
+	if #valid_items > 0 then 
+		local d_item = valid_items[1]
 		local d_track = reaper.GetTrack(0, trackID)
-		local d_pos = reaper.GetMediaItemInfo_Value(d_item, "D_POSITION")
-		--COMPARE
-		i_start = d_pos - hitbox_beat_pre
-		i_end = d_pos + hitbox_beat_pos
-		
-		if playHead > i_start and i_end > playHead then -- if playHead between 1 beat before and 1 beat after item start
-			--sc("Hit one"..tostring(d_item))
-			reaper.DeleteTrackMediaItem(d_track, d_item) --sometimes this bugs out
-			p_score = p_score + 1
-			table.remove(valid_items[trackID],1) -- ITEM DELETED (first in list) REMOVE ITEM AS (TRACK,#)
-			reaper.UpdateArrange()
-		else --THERE IS AN ITEM AND YOU MISSED
-			p_score = p_score - 1 
-			reaper.SetMediaItemInfo_Value(d_item,"I_CUSTOMCOLOR", missHitColor) --No longer destructable
-			reaper.UpdateArrange()
-			table.remove(valid_items[trackID],1) -- ITEM MISSED (first in list) REMOVE ITEM AS (TRACK,#)
+		if reaper.GetMediaItemTrack(d_item) == d_track then
+			local d_pos = reaper.GetMediaItemInfo_Value(d_item, "D_POSITION")
+			local d_len = reaper.GetMediaItemInfo_Value(d_item, "D_LENGTH")
+			local i_end = d_pos + d_len
+			
+			if playHead > d_pos and i_end > playHead then
+				--sc("Hit one"..tostring(d_item))
+				reaper.DeleteTrackMediaItem(d_track, d_item) 
+				p_score = p_score + 1
+				table.remove(valid_items,1)
+				reaper.UpdateArrange()
+			else
+				p_score = p_score - 1 
+				--reaper.SetMediaItemInfo_Value(d_item,"I_CUSTOMCOLOR", missHitColor) --No longer destructable
+				--table.remove(valid_items,1) -- ITEM MISSED (first in list) REMOVE ITEM AS (TRACK,#)
+			end
 		end
-	else -- YOU PRESSED THE KEY AND THERE WAS NO ITEM in the item list D:
-			p_score = p_score - 1 
-			--table.remove(valid_items[trackID],1)
+	else 
+		p_score = p_score - 1 
 	end
 end
 
 
-function BTR_CORE.NewItem(trackNum,pos_current,offset,pos_len) 
-	if #valid_items[trackNum] > 0 then 
-		d_item_pos = reaper.GetMediaItemInfo_Value(valid_items[trackNum][1], "D_POSITION")
-		d_item_len = reaper.GetMediaItemInfo_Value(valid_items[trackNum][1], "D_LENGTH")
-		if elapsed > d_item_pos+d_item_len then
-			table.remove(valid_items[trackNum],1) -- ITEM PASSED (first in list) REMOVE ITEM AS (TRACK,#)
-		end
-	end	
+function BTR_CORE.NewItem(trackNum,pos_spawn,pos_len) 
 	local track = reaper.GetTrack(0, trackNum)
-	reaper.CreateNewMIDIItemInProj(track,pos_current+offset,pos_len) --Track, START, END
+	reaper.CreateNewMIDIItemInProj(track,pos_spawn,pos_len) --Track, START, END
 	local newest_item = reaper.GetTrackMediaItem(track, reaper.CountTrackMediaItems(track)-1)
 	if drawMidiShapes == true then BTR.DrawMidiShape(trackNum,newest_item) end
 
-	table.insert(valid_items[trackNum],newest_item) -- Adds the recently created item to the list of specific track
-	--sc("NEW ITEM at track: "..tostring(trackNum)..", item: "..tostring(newest_item))
+	table.insert(valid_items,newest_item) 
 end
 
 

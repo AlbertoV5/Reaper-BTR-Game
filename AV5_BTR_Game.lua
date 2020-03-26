@@ -2,11 +2,7 @@
 randomMap = false
 drawMidiShapes = false
 --Values
-
-beatOffset = 1 --OFFSET ON BEATS FOR SPAWNING
-countDown = 0 --Beats to wait before spawning items
-hitbox_pre = 0 --ITEM HITBOX in amount of beats (min = 0)
-hitbox_pos = 1 --ITEM HITBOX in amount of beats (min = 1)
+beatOffset = 1 
 beatMult = 1.0 --Multiplier for beat, 0.5 is 1/8 and 2 is 1/2 on music notation.
 
 --Advanced
@@ -30,28 +26,20 @@ reaper.ClearConsole()
 time_start = reaper.time_precise()
 bpm = reaper.Master_GetTempo()
 --BEAT
-
---Constants
 BEAT = 60/bpm*beatMult --Beat duration depending on BPM
-
---Other
 markerOffset = BEAT*beatOffset
-hitbox_beat_pre = BEAT*hitbox_pre --HITBOX
-hitbox_beat_pos = BEAT*hitbox_pos --HITBOX
 
 --Control
-beatBuffer = BEAT*countDown --Most important part of Update()
-valid_items = {{},{},{},{}} --Don't change, 1 list per track
+valid_items = {} --Don't change, 1 list per track
 beatMap = {}
-beatCounter = 0
 beatSpawnCounter = 0 --Starts at 0
 p_score = 0 --Player Score
 
 --Key
-_key = 1 --pressed key
-tkp = " " --pressed key for UI
-local holding_elapsed --Key press control
-max_holding_time = 1 --time in seconds for key press hold
+_key = 1 
+uiKey = " " 
+local holding_elapsed 
+local max_holding_time = 1 
 
 --Tempo
 TempoEnvelopes = {{0},{1000}}
@@ -81,12 +69,34 @@ end
 
 local function FinalScore() --FINAL SCORE SCREEN
 	gfx.x, gfx.y = 0, 0 
-	gfx.drawstr("Final Score = "..tostring(p_score).." / "..tostring(beatSpawnCounter).."\nPercentage: "..tostring(p_score/beatSpawnCounter)) 
+	gfx.drawstr("Final Score = "..
+		tostring(p_score).." / "..
+		tostring(beatSpawnCounter)..
+		"\nPercentage: "..tostring(p_score/beatSpawnCounter)) 
 	gfx.update()
-	if gfx.getchar() == 32 then
+	if gfx.getchar() == 27 then
 		return
 	end
     reaper.defer(FinalScore)
+end
+
+local function LoadMap()
+	if randomMap == true then 
+		beatMap = BTR.RandomMap2(100,1,2)
+	else
+		beatMap = MAP.ReadMap()
+		--reaper.ShowConsoleMsg(tostring(beatMap[2][2]))
+		if beatMap == nil  then
+			playingState = 100 end --STOP IT
+	end
+	return beatMap
+end
+
+local function SongPosition(beatMap)
+	beatPos_beat = beatMap[1][1]
+	nextBeat = beatPos_beat*BEAT
+	levelLength = beatMap[#beatMap][1]
+	songLength = reaper.TimeMap2_beatsToTime(0, levelLength) + 3 --out time
 end
 
 local function EvaluateTempo() --Adapt, Improve, Overcome
@@ -100,94 +110,92 @@ local function EvaluateTempo() --Adapt, Improve, Overcome
 	end
 end
 
-local function Wait()
-	time = reaper.time_precise()
-	elapsed = time - time_start
-	if elapsed > 3 then
-		return
-	else
-		reaper.defer(Wait)
-	end
-end
-
-
-local function Update() --System cycles update, around 30 ms
-	time = reaper.time_precise()
+local function Update()
+	time = reaper.GetPlayPosition()
     elapsed = time - time_start
-	char = gfx.getchar() -- Read key presses
-   	if char == 32 then reaper.Main_OnCommand(1016, 1, 0) 
-   		BTR.EndGame(p_score, beatSpawnCounter)
- 		FinalScore() --Ending
-   		return 
-   	end --STOP on space bar
 
-	if char > 0 and _key ~= char then --If key is pressed skip this one
+	char = gfx.getchar() 
+   	if char == 27 then --ESC
+   		reaper.Main_OnCommand(1016, 1) 
+   		return
+   	elseif char == 32 then --Space Bar
+   		reaper.Main_OnCommand(1008, 1) --pause
+   		return
+   	end
+
+	if char > 0 and _key ~= char then
 		holding_start = reaper.time_precise() 
 		_key = char
 	else
-		holding_elapsed = 0 --Clean variable when no key pressed or char = 0
+		holding_elapsed = 0
 	end
 
-	if _key == char and holding_elapsed < max_holding_time then --DON'T CHEAT >:(
+	if _key == char and holding_elapsed < max_holding_time then
 		holding_elapsed = reaper.time_precise() - holding_start
-		if _key ==  49 then tkp = "1" BTR.DeleteItem(1) end --a  97, q 113,  
-	   	if _key == 50 then tkp = "2" BTR.DeleteItem(2) end --s  w 119, 
-	   	if _key == 51 then tkp = "3" BTR.DeleteItem(3) end --d  e 101, 
-	   	if _key == 52 then tkp = "4" BTR.DeleteItem(4) end --f  r  114 
-	   	ShowScore(tkp)
+		if _key ==  49 then uiKey = "1" BTR.DeleteItem(1) end --a  97, q 113,  
+	   	if _key == 50 then uiKey = "2" BTR.DeleteItem(2) end --s  w 119, 
+	   	if _key == 51 then uiKey = "3" BTR.DeleteItem(3) end --d  e 101, 
+	   	if _key == 52 then uiKey = "4" BTR.DeleteItem(4) end --f  r  114 
+	   	ShowScore(uiKey)
+	end
+
+	if #valid_items > 0 then
+		_pos = reaper.GetMediaItemInfo_Value(valid_items[1], "D_POSITION")
+		_len = reaper.GetMediaItemInfo_Value(valid_items[1], "D_LENGTH")
+		if _pos + _len < elapsed then
+			table.remove(valid_items,1)
+		end
 	end
 
     if  elapsed > songLength then
-    	time_start = reaper.time_precise()
-    	reaper.Main_OnCommand(1016, 1, 0)--Stop
     	BTR.EndGame(p_score, beatSpawnCounter)
- 		FinalScore() --Ending
+ 		FinalScore() 
         return
     else
-	    if elapsed + markerOffset > nextBeat and beatPos ~= levelLength then     --Update each time a beat happens, NEEDS to change for tempo change
-	    	ShowScore(tkp)
+	    if elapsed + markerOffset > nextBeat and beatPos_beat ~= levelLength then     --Update each time a beat happens, NEEDS to change for tempo change
+	    	ShowScore(uiKey)
 	    	EvaluateTempo()
 	    	beatSpawnCounter = beatSpawnCounter + 1 
 	    	nextBeat = beatMap[beatSpawnCounter][1]*BEAT
-    		beatPos = beatMap[beatSpawnCounter][1]
-			beatTrack = beatMap[beatSpawnCounter][2]
-			beatLength = nextBeat + markerOffset + beatMap[beatSpawnCounter][3]*BEAT
-    		BTR.NewItem(beatTrack,nextBeat,markerOffset,beatLength)
+    		beatPos_beat = beatMap[beatSpawnCounter][1]
+
+    		BTR.NewItem(beatMap[beatSpawnCounter][2],nextBeat + markerOffset,nextBeat + markerOffset + beatMap[beatSpawnCounter][3]*BEAT)
 	    end
        	reaper.defer(Update)
     end
 end
 
+local function Pause()
+	char = gfx.getchar() 
+	ShowScore(uiKey)
+	if char == 27 then --Esc
+		reaper.Main_OnCommand(1016, 1, 0) 
+   		return
+   	elseif char == 32 then --Space Bar
+   		reaper.Main_OnCommand(1008,1)
+   		return reaper.defer(Update)
+   	else
+   	reaper.defer(Pause)
+   end
+end
+
 --PROCESS
-playingState = reaper.GetPlayState()
 if reaper.CountTempoTimeSigMarkers(0) > 1 then
-	TempoEnvelopes = BTR.HandleTempoEnvelopes() --List of [1] pos in beats and [2] value
+	TempoEnvelopes = BTR.HandleTempoEnvelopes()
 end
+playingState = reaper.GetPlayState()
+BTR.CleanUpItems({1,4})
 
-if randomMap == true then 
-	beatMap = BTR.RandomMap2(100,1,2)
-else
-	beatMap = MAP.ReadMap()
-	--reaper.ShowConsoleMsg(tostring(beatMap[2][2]))
-	if beatMap == nil  then
-		playingState = 100 end --STOP IT
-end
+beatMap = LoadMap()
+SongPosition(beatMap)
 
-beatPos = beatMap[1][1]
-nextBeat = beatPos*BEAT
-levelLength = beatMap[#beatMap][1]
-songLength = reaper.TimeMap2_beatsToTime(0, levelLength) + 3
-
-if  playingState == 0 then 
-	BTR.CleanUpItems({1,4}) --Clean on tracks x to y
+if playingState == 0 then 
 	time_start = BTR.Start()
-	ShowScore(tkp)
+	ShowScore(uiKey)
 	Update()
-else --If playing or recording, stop
+	Pause()
+else
 	currCursor = reaper.GetCursorPosition()
-    reaper.Main_OnCommand(1016, 1, 0)
+	reaper.Main_OnCommand(1016, 1, 0)
 	reaper.SetEditCurPos(currCursor, true, true)
 end
-
---reaper.atexit(Update) 
---reaper.atexit(FinalScore)

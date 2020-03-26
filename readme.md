@@ -19,6 +19,13 @@ V0.1 video: https://www.youtube.com/watch?v=b7JHRZnzJrc
 5. After the session is created, run AV5_BTR_Game.
 6. Have fun :)
 
+### Beat Mapping Editor
+1. Run the BTR_Setup script to set up your session.
+2. Load and run BTR_Mapper to start editing.
+3. Follow controls on UI, use "s" to save all current items on tracks 1 to 4.
+4. A .json file is created on your project path.
+5. Run BTR_Game and start playing to your own mapping.
+
 ### How to Play:
 1. The project will play and items will appear on your edit window.
 2. Try to hit your 1 2 3 4 keys according to the tracks 1 2 3 4 to delete the items.

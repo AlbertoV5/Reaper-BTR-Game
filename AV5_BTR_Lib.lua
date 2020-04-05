@@ -55,48 +55,38 @@ function BTR_CORE.CleanUpItems(trackRange)
 	reaper.Main_OnCommand(40699, 1) --Delete all selected items
 end
 
-function BTR_CORE.Start() --Starts the Game
-	local name, x, y, w, h = "Beat the Reaper Game", 300, 100, 0, 1080 --UI
-	--SETUP
-	gfx.init(name, x, y, 0, w, h) --INITIALIZE WINDOW
-	reaper.SetEditCurPos(0.0, true, true)
-	reaper.Main_OnCommand(1007, 1, 0)--Play
+function BTR_CORE.Start() 
+	local name, x, y, w, h = "Beat the Reaper Game", 300, 100, 0, 1600 --UI
+	gfx.init(name, x, y, 0, w, h)
+	--firstItemPos = reaper.GetMediaItemInfo_Value(reaper.GetTrackMediaItem(reaper.GetTrack(0, 0), 0), "D_POSITION") 
+	--reaper.SetEditCurPos(firstItemPos, true, true)
+	reaper.SetEditCurPos(0, true, true)
+	reaper.Main_OnCommand(1007, 1, 0)
 	return reaper.GetPlayPosition()
 end
 
-local function InsertNote(midinote,itemTake) 
-	reaper.MIDI_InsertNote(itemTake, false, false, 840, 960, 1, midinote, 100, false) 
-end
- 
 function BTR_CORE.DrawMidiShape(trackNum,newItem)
 	local activeTake = reaper.GetMediaItemTake(newItem, 0)
-	InsertNote(midiScale[trackNum],activeTake)
+	reaper.MIDI_InsertNote(activeTake, false, false, 840, 960, 1, midiScale[trackNum], 100, false) 
 end
 
-local function CreateScoreTrack(playerScore,maxScore)
-	local trackHeight = 50
-	local trackName = "Score: "..tostring(math.ceil(1000*playerScore/maxScore)/10).."%, "
-	..tostring(playerScore).." out of "..tostring(maxScore)
-	reaper.Main_OnCommand(40702, 1) --Create track at bottom
-	local scoreTrack = reaper.GetTrack(0, reaper.CountTracks(0)-1)
-	reaper.GetSetMediaTrackInfo_String(scoreTrack, "P_NAME", trackName, true)
-	reaper.SetMediaTrackInfo_Value(scoreTrack, "I_HEIGHTOVERRIDE",trackHeight) --Change height to 200
-	reaper.SetTrackSelected(scoreTrack, true) --SELECT
-	reaper.Main_OnCommand(40358,1) --RANDOM COLORS
-	--reaper.SetTrackSelected(scoreTrack, false) --DESELECT
-	reaper.CreateNewMIDIItemInProj(scoreTrack, 0, playerScore, false)
-end
 
-function BTR_CORE.EndGame(playerScore,maxScore)
-	reaper.Main_OnCommand(1016, 1, 0)
-	CreateScoreTrack(playerScore,maxScore)
-end
+function BTR_CORE.GetPositionStart(beatMap)
+	local start_pos = reaper.GetCursorPosition()
+	reaper.ShowConsoleMsg(tostring(start_pos).."\n")
 
-function BTR_CORE.GetSongStart()
-	local first_item = reaper.GetTrackMediaItem(reaper.GetTrack(0, 0), 0)
-	local item_pos = reaper.GetMediaItemInfo_Value(first_item, "D_POSITION")
-	_1, _2, _3, beatPos, _4 = reaper.TimeMap2_timeToBeats(0, item_pos)
-	return beatPos
+	local mpos,bpos = reaper.TimeMap2_timeToBeats(0, start_pos)
+	bpos = math.floor(bpos) + 1
+	absPos = (math.floor(mpos)-1)*4 + bpos
+	reaper.ShowConsoleMsg(tostring(mpos).."\n")
+	reaper.ShowConsoleMsg(tostring(absPos).."\n")
+
+	for i = 1, #beatMap do
+		if beatMap[i][1] == absPos then
+			return beatMap[i][1]
+		end
+	end
+	reaper.ShowConsoleMsg(tostring("No Starting Beat Found").."\n")
 end
 
 function BTR_CORE.GetSongLength(extraBeats)
@@ -122,17 +112,15 @@ function BTR_CORE.DeleteItem(trackID) -- track id
 			if playHead > d_pos and i_end > playHead then
 				--sc("Hit one"..tostring(d_item))
 				reaper.DeleteTrackMediaItem(d_track, d_item) 
-				p_score = p_score + 1
+				player_score = player_score + 1
 				table.remove(valid_items,1)
 				reaper.UpdateArrange()
 			else
-				p_score = p_score - 1 
-				--reaper.SetMediaItemInfo_Value(d_item,"I_CUSTOMCOLOR", missHitColor) --No longer destructable
-				--table.remove(valid_items,1) -- ITEM MISSED (first in list) REMOVE ITEM AS (TRACK,#)
+				player_score = player_score - 1 
 			end
 		end
 	else 
-		p_score = p_score - 1 
+		player_score = player_score - 1 
 	end
 end
 
@@ -147,4 +135,23 @@ function BTR_CORE.NewItem(trackNum,pos_spawn,pos_len)
 end
 
 
+local function CreateScoreTrack(playerScore,maxScore)
+	local trackHeight = 50
+	local trackName = "Score: "..tostring(math.ceil(1000*playerScore/maxScore)/10).."%, "
+	..tostring(playerScore).." out of "..tostring(maxScore)
+	reaper.Main_OnCommand(40702, 1) --Create track at bottom
+	local scoreTrack = reaper.GetTrack(0, reaper.CountTracks(0)-1)
+
+	reaper.GetSetMediaTrackInfo_String(scoreTrack, "P_NAME", trackName, true)
+	reaper.SetMediaTrackInfo_Value(scoreTrack, "I_HEIGHTOVERRIDE",trackHeight)
+	reaper.SetTrackSelected(scoreTrack, true)
+	reaper.Main_OnCommand(40358,1) --RANDOM COLORS
+	reaper.CreateNewMIDIItemInProj(scoreTrack, 0, playerScore, false)
+	reaper.SetTrackSelected(scoreTrack, false)
+end
+
+function BTR_CORE.EndGame(playerScore,maxScore)
+	reaper.Main_OnCommand(1016, 1, 0)
+	CreateScoreTrack(playerScore,maxScore)
+end
 return BTR_CORE;
